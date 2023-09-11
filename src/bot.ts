@@ -7,28 +7,18 @@ const MAX_PATCH_COUNT = process.env.MAX_PATCH_LENGTH
   ? +process.env.MAX_PATCH_LENGTH
   : Infinity;
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const loadChat = async (context: Context) => {
   const repo = context.repo();
 
   try {
-    // Check env on the repository
-    const { data } = (await context.octokit.request(
-      'GET /repos/{owner}/{repo}/actions/variables/{name}',
-      {
-        owner: repo.owner,
-        repo: repo.repo,
-        name: 'OPENAI_API_KEY', // Ensure 'OPENAI_API_KEY' is a string
-      }
-    )) as any;
-
-    if (!data?.value) {
+    if (!OPENAI_API_KEY) {
       throw new Error(
         'OPENAI_API_KEY is not set in Variables/Secrets on this repository'
       );
     }
 
     // Test the API key by making a simple request to the OpenAI API
-    const apiKey = data.value;
     const response = await axios.post(
       'https://api.openai.com/v1/engines/davinci/completions',
       {
@@ -38,7 +28,7 @@ const loadChat = async (context: Context) => {
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
       }
     );
@@ -47,7 +37,7 @@ const loadChat = async (context: Context) => {
         `API key test request failed with status: ${response.status}`
       );
     }
-    return new Chat(apiKey);
+    return new Chat(OPENAI_API_KEY);
   } catch (error: any) {
     await context.octokit.issues.createComment({
       repo: repo.repo,
@@ -59,7 +49,7 @@ const loadChat = async (context: Context) => {
         'Invalid API key. Please check your OPENAI_API_KEY in Variables/Secrets on this repository.'
       }`,
     });
-    return null;
+    throw new Error('Initialization failed.');
   }
 };
 export const Bot = (app: Probot) => {
