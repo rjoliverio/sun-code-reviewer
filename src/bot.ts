@@ -31,7 +31,7 @@ const MAX_PATCH_COUNT = process.env.MAX_PATCH_LENGTH
   
       // Test the API key by making a simple request to the OpenAI API
       const apiKey = data.value;
-      const response = await axios.post('https://api.openai.com/v1/engines/davinci/completions', {
+      await axios.post('https://api.openai.com/v1/engines/davinci/completions', {
         prompt: 'Hello, world!',
         max_tokens: 5
       }, {
@@ -40,10 +40,6 @@ const MAX_PATCH_COUNT = process.env.MAX_PATCH_LENGTH
           'Authorization': `Bearer ${apiKey}`
         }
       });
-  
-      if (response.status !== 200) {
-        throw new Error(`API key test request failed with status: ${response.status}`);
-      }
   
       return new Chat(apiKey);
     } catch (error: any) {
