@@ -49,6 +49,11 @@ const loadChat = async (context: Context) => {
         'Invalid API key. Please check your OPENAI_API_KEY in Variables/Secrets on this repository.'
       }`,
     });
+    console.error(
+      error.response?.data?.error?.message ||
+        error?.message ||
+        'Invalid API key. Please check your OPENAI_API_KEY in Variables/Secrets on this repository.'
+    );
     process.exit(1);
   }
 };
@@ -144,6 +149,7 @@ export const Bot = (app: Probot) => {
               e?.message && `\`${e?.message}\``
             }`,
           });
+          console.error(`Review on ${file.filename} failed.\n ${e}`);
           process.exit(1);
         }
       }
