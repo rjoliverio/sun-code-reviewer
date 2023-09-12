@@ -49,7 +49,7 @@ const loadChat = async (context: Context) => {
         'Invalid API key. Please check your OPENAI_API_KEY in Variables/Secrets on this repository.'
       }`,
     });
-    throw new Error('Initialization failed.');
+    process.exit(1);
   }
 };
 export const Bot = (app: Probot) => {
@@ -144,7 +144,7 @@ export const Bot = (app: Probot) => {
               e?.message && `\`${e?.message}\``
             }`,
           });
-          throw new Error(`Review on ${file.filename} failed.\n ${e}`);
+          process.exit(1);
         }
       }
     }
